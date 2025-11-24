@@ -1,0 +1,3 @@
+[submodule "bluetooth_sdk"]
+	path = bluetooth_sdk
+	url = git@github.com:kimauanisso/bluetooth_sdk.git
