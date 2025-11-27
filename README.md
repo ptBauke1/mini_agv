@@ -195,7 +195,7 @@ pip install asyncio websockets pyserial
 ### Iniciar o Sistema
 
 1. **Ligar o robô** (conectar bateria)
-2. **Conectar o módulo Bluetooth** ao computador via USB
+2. **Conectar o módulo Bluetooth** ao computador
 3. **Iniciar o servidor Python**:
    ```bash
    cd dashboard
@@ -342,7 +342,7 @@ pwm_direito = base_speed - correção
 - Kp = 0.2 (proporcional)
 - Ki = 0.0 (integral - desabilitado para evitar overshooting)
 - Kd = 0.01 (derivativo)
-- Base Speed = 800 (PWM de 0-1000)
+- Base Speed = 800 (PWM de 0-1023)
 
 ### Detecção de Obstáculos
 
@@ -381,34 +381,11 @@ pwm_direito = base_speed - correção
 
 ---
 
-## 📄 Licença
-
-> **[PREENCHER]**: Adicionar licença (MIT, GPL, etc.)
-
----
-
-## 👤 Autor
-
-**Pedro Bauke**
-- GitHub: [@ptBauke1](https://github.com/ptBauke1)
-- Projeto: [mini_agv](https://github.com/ptBauke1/mini_agv)
-
----
-
-## 🙏 Agradecimentos
-
-> **[PREENCHER]**: Créditos, referências, agradecimentos
-
----
-
 ## 📚 Referências
 
 - [Raspberry Pi Pico SDK Documentation](https://www.raspberrypi.com/documentation/pico-sdk/)
 - [Chart.js Documentation](https://www.chartjs.org/docs/)
-- [PID Control Tutorial](https://en.wikipedia.org/wiki/PID_controller)
 
 ---
-
-**Status do Projeto**: 🚧 Em desenvolvimento ativo
 
 **Última atualização**: Novembro 2025
