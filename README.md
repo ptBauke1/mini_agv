@@ -346,7 +346,7 @@ pwm_direito = base_speed - correção
 
 ### Detecção de Obstáculos
 
-- Leitura do ultrassônico a cada 100ms
+- Leitura do ultrassônico a cada 10ms
 - Limiar de parada: **120mm**
 - Timeout de leitura: 50ms
 - Ação: Para motores automaticamente (`robot_enabled = false`)
