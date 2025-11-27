@@ -112,17 +112,21 @@ Raspberry Pi Pico (Firmware C++)
 
 ## 🔨 Montagem
 
-### Esquema de Ligação
+### Esquemas de Ligação
 
-> **[PREENCHER]**: Adicionar diagrama de circuito/fritzing
+#### Esquema Principal - Motores, Bluetooth e Ultrassônico
+
+![Esquema Principal](imagens/esquema_principal.png)
+
+#### Esquema dos Sensores de Linha (Multiplexador)
+
+![Esquema Sensores](imagens/esquema_sensores.png)
 
 ### Foto da Montagem Final
 
-> **[PREENCHER]**: Inserir imagem do robô montado
+![Montagem Final](imagens/montagem_final.JPG)
 
-```
-![Montagem Final](docs/images/montagem_final.jpg)
-```
+*Robô montado com todos os componentes integrados*
 
 ### Instruções de Montagem
 
