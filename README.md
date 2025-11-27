@@ -2,23 +2,6 @@
 
 Robô seguidor de linha com controle PID, detecção de obstáculos e monitoramento em tempo real via dashboard web.
 
----
-
-## 📋 Índice
-
-- [Sobre o Projeto](#sobre-o-projeto)
-- [Funcionalidades](#funcionalidades)
-- [Hardware](#hardware)
-- [Software](#software)
-- [Montagem](#montagem)
-- [Instalação e Configuração](#instalação-e-configuração)
-- [Uso](#uso)
-- [Dashboard Web](#dashboard-web)
-- [Comandos Bluetooth](#comandos-bluetooth)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-
----
-
 ## 🎯 Sobre o Projeto
 
 Este projeto implementa um AGV (Automated Guided Vehicle) utilizando o microcontrolador **RP2040**, capaz de seguir linhas de forma autônoma com controle PID ajustável, detectar obstáculos e transmitir telemetria em tempo real para um dashboard web.
@@ -51,22 +34,40 @@ Este projeto implementa um AGV (Automated Guided Vehicle) utilizando o microcont
 
 ### Lista de Materiais
 
+#### Barra de Sensor
+
+| Componente | Quantidade | Descrição |
+|------------|------------|-----------|
+| **Sensor de linha IR** | 8 | QRE1113 |
+| **Resistor 220 Ohms** | 8 | 220 Ohms |
+| **Resistor 22k Ohms** | 8 | 22k Ohms|
+| **CD4051** | 1 | Multiplexador analógico 8:1 |
+
+#### Placa Principal
+
 | Componente | Quantidade | Descrição |
 |------------|------------|-----------|
 | **Raspberry Pi Pico** | 1 | Microcontrolador principal (RP2040) |
 | **HC-SR04** | 1 | Sensor ultrassônico para detecção de obstáculos |
-| **Sensor de linha IR** | 8 | Array de sensores infravermelhos (QTR-8RC ou similar) |
-| **CD4051** | 1 | Multiplexador analógico 8:1 |
 | **L298N** | 1 | Drivers de motor DC (ou 1 módulo duplo) |
-| **Motor DC** | 2 | Motores Amarelos (6V-12V) |
+| **Motor DC** | 2 | Motores DC 3-6V |
 | **HC-05/06** | 1 | Módulo Bluetooth (UART) |
-| **Bateria** | 1 | [PREENCHER: Tipo e capacidade] |
-| **Chassi** | 1 | [PREENCHER: Material e dimensões] |
-| **Rodas** | 2 | [PREENCHER: Diâmetro] |
-| **Regulador de tensão** | 1 | [PREENCHER: 5V/3.3V] |
+| **LM7805** | 1 | Regulador 5V |
+| **LM1117** | 1 | Regulador 3v3|
+| **Capacitor 10uF** | 4 | Capacitor Eletrolitico 10uF |
+| **Resistor 10k Ohms**| 4 | Resistor 10k Ohms |
+| **2N7000** | 2 | MOSFET 2N7000 |
+| **Diodo** | 1 | Diodo 1N4007 |
 
-> **Nota**: Preencher campos específicos de acordo com os componentes utilizados.
-
+#### Chassi
+| Componente | Quantidade | Descrição |
+|------------|------------|-----------|
+| **Placa de MDF** | 1 | Placa de MDF de 3mm para corte do chassi |
+| **Rodas** | 2 | Rodas de 65mm |
+| **PLA** | 1 | Carretel de filamento PLA para impressão de peças |
+| **Elasticos** | 10 | Elasticos de dinheiro para serem colocados nas rodas |
+| **Parafusos e Porcas** | 6 | Parafusos e Porcas M3 |
+| **Feltro** | 1 | Feltro para terceiro ponto de apoio |
 ### Pinagem
 
 | Periférico | Pino(s) Pico W | Descrição |
@@ -133,17 +134,6 @@ Raspberry Pi Pico (Firmware C++)
 </p>
 
 <p align="center"><em>Robô montado com todos os componentes integrados</em></p>
-
-### Instruções de Montagem
-
-1. **[PREENCHER]**: Fixar chassis e motores
-2. **[PREENCHER]**: Instalar sensores de linha (posição e altura)
-3. **[PREENCHER]**: Conectar drivers de motor L298N
-4. **[PREENCHER]**: Montar sensor ultrassônico (altura recomendada)
-5. **[PREENCHER]**: Fixar Pico W e módulo Bluetooth
-6. **[PREENCHER]**: Sistema de alimentação (bateria/reguladores)
-7. Verificar todas as conexões conforme tabela de pinagem
-
 ---
 
 ## 🚀 Instalação e Configuração
@@ -249,13 +239,13 @@ pip install asyncio websockets pyserial
   - Distância do sensor ultrassônico
 - **Log de Dados**: Histórico de comandos e eventos
 
-### Capturas de Tela
+### Captura de Tela
 
-> **[PREENCHER]**: Adicionar screenshots do dashboard
+<p align="center">
+  <img src="imagens/dashboard.png" alt="Dashboard Web" />
+</p>
 
-```
-![Dashboard](docs/images/dashboard.png)
-```
+<p align="center"><em>Interface do dashboard com gráficos em tempo real e controles do robô</em></p>
 
 ---
 
