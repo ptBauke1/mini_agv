@@ -33,9 +33,9 @@ uint16_t aux;
 int16_t base_speed = 800;
 int16_t correction = 0;
 
-float kp = 0.15f;
+float kp = 1.75f;
 float ki = 0.0f;
-float kd = 0.01f;
+float kd = 520.0f;
 float last_error = 0.0f;
 float integral = 0.0f;
 bool object_detected = false;
