@@ -41,7 +41,7 @@ float integral = 0.0f;
 bool object_detected = false;
 
 uint32_t timer = 0;
-#define TIME_STEP_US 1000 // 1 ms
+#define TIME_STEP_US 10000 // 10 ms
 
 uint32_t last_distance = 0;
 int16_t left_pwm = 0;
