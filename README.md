@@ -339,9 +339,9 @@ pwm_direito = base_speed - correção
 ```
 
 **Valores padrão**:
-- Kp = 0.2 (proporcional)
+- Kp = 1.75 (proporcional)
 - Ki = 0.0 (integral - desabilitado para evitar overshooting)
-- Kd = 0.01 (derivativo)
+- Kd = 520.0 (derivativo)
 - Base Speed = 800 (PWM de 0-1023)
 
 ### Detecção de Obstáculos
