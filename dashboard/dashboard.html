@@ -83,6 +83,148 @@
             cursor: not-allowed;
         }
 
+        .robot-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .robot-controls button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .start-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .start-btn:hover {
+            background: #059669;
+        }
+
+        .stop-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .stop-btn:hover {
+            background: #dc2626;
+        }
+
+        .calibrate-btn {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .calibrate-btn:hover {
+            background: #d97706;
+        }
+
+        .pid-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .pid-controls h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .pid-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .pid-input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pid-input-group label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .pid-input-group input {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+            text-align: center;
+        }
+
+        .pid-input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .pid-btn {
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            background: #667eea;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .pid-btn:hover {
+            background: #5568d3;
+        }
+
+        .pid-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .obstacle-indicator {
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .obstacle-clear {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .obstacle-detected {
+            background: #fee2e2;
+            color: #991b1b;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -191,14 +333,55 @@
     <div class="container">
         <h1>🤖 AGV Telemetry Dashboard</h1>
         
-        <div id="status" class="status disconnected">
-            ⚠️ Disconnected - Enter WebSocket URL and Connect
+        <div id="wsStatus" class="status disconnected">
+            ⚠️ WebSocket: Disconnected
+        </div>
+        
+        <div id="comStatus" class="status disconnected">
+            ⚠️ COM Port: Not Connected
         </div>
 
         <div class="controls">
+            <label style="color: white; font-weight: bold;">WebSocket:</label>
             <input type="text" id="wsUrl" placeholder="ws://localhost:8765" value="ws://localhost:8765">
-            <button id="connectBtn" onclick="connect()">Connect</button>
-            <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+            <button id="connectWsBtn" onclick="connectWebSocket()">Connect WS</button>
+            <button id="disconnectWsBtn" onclick="disconnectWebSocket()" disabled>Disconnect WS</button>
+        </div>
+        
+        <div class="controls">
+            <label style="color: white; font-weight: bold;">COM Port:</label>
+            <input type="text" id="comPort" placeholder="COM3" value="COM3" style="width: 100px;">
+            <button id="connectComBtn" onclick="connectComPort()" disabled>Connect COM</button>
+            <button id="disconnectComBtn" onclick="disconnectComPort()" disabled>Disconnect COM</button>
+        </div>
+
+        <div class="robot-controls">
+            <button class="start-btn" onclick="sendCommand('START')" id="startBtn" disabled>▶️ Start Robot</button>
+            <button class="stop-btn" onclick="sendCommand('STOP')" id="stopBtn" disabled>⏹️ Stop Robot</button>
+            <button class="calibrate-btn" onclick="sendCommand('CALIBRATE')" id="calibrateBtn" disabled>🎯 Calibrate Sensors</button>
+            <div class="obstacle-indicator obstacle-clear" id="obstacleIndicator">
+                <span id="obstacleIcon">✅</span>
+                <span id="obstacleText">No Obstacle</span>
+            </div>
+        </div>
+
+        <div class="pid-controls">
+            <h3>⚙️ PID Control</h3>
+            <div class="pid-grid">
+                <div class="pid-input-group">
+                    <label for="pidKp">Kp (Proportional)</label>
+                    <input type="number" id="pidKp" value="0.2" step="0.01" min="0" max="10">
+                </div>
+                <div class="pid-input-group">
+                    <label for="pidKi">Ki (Integral)</label>
+                    <input type="number" id="pidKi" value="0.0" step="0.001" min="0" max="1">
+                </div>
+                <div class="pid-input-group">
+                    <label for="pidKd">Kd (Derivative)</label>
+                    <input type="number" id="pidKd" value="0.01" step="0.001" min="0" max="1">
+                </div>
+            </div>
+            <button class="pid-btn" onclick="setPID()" id="pidBtn" disabled>Update PID Constants</button>
         </div>
 
         <div class="metrics-grid">
@@ -342,19 +525,160 @@
             }
         });
 
-        function connect() {
+        function connectWebSocket() {
             const url = document.getElementById('wsUrl').value;
+            
             ws = new WebSocket(url);
 
             ws.onopen = () => {
-                updateStatus(true);
-                addLog('Connected to server');
+                updateWebSocketStatus(true);
+                document.getElementById('connectComBtn').disabled = false;
+                addLog('WebSocket connected');
             };
 
             ws.onmessage = (event) => {
                 try {
-                    const telemetry = JSON.parse(event.data);
-                    updateDashboard(telemetry);
+                    const data = JSON.parse(event.data);
+                    
+                    // Handle status messages
+                    if (data.type === 'status') {
+                        addLog(data.message);
+                        // Update COM status based on message
+                        if (data.message.includes('Connected to COM')) {
+                            updateComStatus(true);
+                        } else if (data.message.includes('Failed to connect')) {
+                            updateComStatus(false);
+                        } else if (data.message.includes('Disconnected from COM')) {
+                            updateComStatus(false);
+                        }
+                    }
+                    // Handle telemetry data
+                    else if (data.left_pwm !== undefined) {
+                        updateDashboard(data);
+                    }
+                } catch (e) {
+                    console.error('Parse error:', e);
+                }
+            };
+
+            ws.onerror = (error) => {
+                addLog('WebSocket connection error');
+                console.error('WebSocket error:', error);
+            };
+
+            ws.onclose = () => {
+                updateWebSocketStatus(false);
+                updateComStatus(false);
+                document.getElementById('connectComBtn').disabled = true;
+                document.getElementById('disconnectComBtn').disabled = true;
+                addLog('WebSocket disconnected');
+            };
+        }
+
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        function connectComPort() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                const comPort = document.getElementById('comPort').value;
+                ws.send(JSON.stringify({ 
+                    type: 'connect_com',
+                    com_port: comPort 
+                }));
+                addLog(`Requesting connection to ${comPort}...`);
+            }
+        }
+
+        function disconnectComPort() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ 
+                    type: 'disconnect_com'
+                }));
+                addLog('Disconnecting COM port...');
+            }
+        }
+
+        function updateWebSocketStatus(connected) {
+            const statusDiv = document.getElementById('wsStatus');
+            const connectBtn = document.getElementById('connectWsBtn');
+            const disconnectBtn = document.getElementById('disconnectWsBtn');
+
+            if (connected) {
+                statusDiv.className = 'status connected';
+                statusDiv.textContent = '✅ WebSocket: Connected';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+            } else {
+                statusDiv.className = 'status disconnected';
+                statusDiv.textContent = '⚠️ WebSocket: Disconnected';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+            }
+        }
+
+        function updateComStatus(connected) {
+            const statusDiv = document.getElementById('comStatus');
+            const connectBtn = document.getElementById('connectComBtn');
+            const disconnectBtn = document.getElementById('disconnectComBtn');
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const calibrateBtn = document.getElementById('calibrateBtn');
+            const pidBtn = document.getElementById('pidBtn');
+
+            if (connected) {
+                statusDiv.className = 'status connected';
+                statusDiv.textContent = '✅ COM Port: Connected';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                startBtn.disabled = false;
+                stopBtn.disabled = false;
+                calibrateBtn.disabled = false;
+                pidBtn.disabled = false;
+            } else {
+                statusDiv.className = 'status disconnected';
+                statusDiv.textContent = '⚠️ COM Port: Not Connected';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                startBtn.disabled = true;
+                stopBtn.disabled = true;
+                calibrateBtn.disabled = true;
+                pidBtn.disabled = true;
+            }
+        }
+
+        function connect() {
+            const url = document.getElementById('wsUrl').value;
+            const comPort = document.getElementById('comPort').value;
+            
+            ws = new WebSocket(url);
+
+            ws.onopen = () => {
+                // Send COM port configuration to server
+                ws.send(JSON.stringify({ 
+                    type: 'config',
+                    com_port: comPort 
+                }));
+                
+                updateStatus(true);
+                addLog(`Connected to server with ${comPort}`);
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    // Handle status messages
+                    if (data.type === 'status') {
+                        addLog(data.message);
+                    }
+                    // Handle telemetry data
+                    else if (data.left_pwm !== undefined) {
+                        updateDashboard(data);
+                    }
                 } catch (e) {
                     console.error('Parse error:', e);
                 }
@@ -382,17 +706,58 @@
             const statusDiv = document.getElementById('status');
             const connectBtn = document.getElementById('connectBtn');
             const disconnectBtn = document.getElementById('disconnectBtn');
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
 
             if (connected) {
                 statusDiv.className = 'status connected';
                 statusDiv.textContent = '✅ Connected';
                 connectBtn.disabled = true;
                 disconnectBtn.disabled = false;
+                startBtn.disabled = false;
+                stopBtn.disabled = false;
             } else {
                 statusDiv.className = 'status disconnected';
                 statusDiv.textContent = '⚠️ Disconnected';
                 connectBtn.disabled = false;
                 disconnectBtn.disabled = true;
+                startBtn.disabled = true;
+                stopBtn.disabled = true;
+            }
+        }
+
+        function sendCommand(cmd) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ command: cmd }));
+                addLog(`Command sent: ${cmd}`);
+            }
+        }
+
+        function setPID() {
+            const kp = document.getElementById('pidKp').value;
+            const ki = document.getElementById('pidKi').value;
+            const kd = document.getElementById('pidKd').value;
+            
+            const command = `PID ${kp} ${ki} ${kd}`;
+            sendCommand(command);
+            addLog(`PID updated: Kp=${kp}, Ki=${ki}, Kd=${kd}`);
+        }
+
+        function updateObstacleIndicator(distance) {
+            const indicator = document.getElementById('obstacleIndicator');
+            const icon = document.getElementById('obstacleIcon');
+            const text = document.getElementById('obstacleText');
+            
+            const OBSTACLE_THRESHOLD = 120; // mm
+            
+            if (distance > 0 && distance < OBSTACLE_THRESHOLD) {
+                indicator.className = 'obstacle-indicator obstacle-detected';
+                icon.textContent = '⚠️';
+                text.textContent = `Obstacle at ${distance}mm`;
+            } else {
+                indicator.className = 'obstacle-indicator obstacle-clear';
+                icon.textContent = '✅';
+                text.textContent = 'No Obstacle';
             }
         }
 
@@ -402,6 +767,9 @@
             document.getElementById('rightPwm').textContent = telemetry.right_pwm;
             document.getElementById('error').textContent = telemetry.error.toFixed(2);
             document.getElementById('distance').textContent = telemetry.distance;
+
+            // Update obstacle indicator
+            updateObstacleIndicator(telemetry.distance);
 
             // Add to data arrays
             const timestamp = new Date().toLocaleTimeString();

@@ -17,4 +17,15 @@ class Motor {
         uint _slice_num2;
 };
 
+class MotorL298N {
+    public:
+        MotorL298N(uint enable_pin, uint in1_pin, uint in2_pin);
+        void set_speed(int16_t speed);
+    private:
+        uint _enable_pin;
+        uint _in1_pin;
+        uint _in2_pin;
+        uint _slice_num;
+};
+
 #endif // MOTORS_HPP

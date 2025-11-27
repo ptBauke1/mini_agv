@@ -6,7 +6,7 @@
 #include "hardware/adc.h"
 
 #define NUM_SENSORS 8
-#define SENSOR_OFFSET 1000*(NUM_SENSORS-1) / 2 
+#define SENSOR_OFFSET 1000.0f*(NUM_SENSORS-1) / 2.0f
 
 #define TIMEOUT_TIME 38000 // 38ms timeout for ultrasonic (max range ~4m)
 
@@ -15,6 +15,7 @@ class SensorArray {
         SensorArray(uint bit0, uint bit1, uint bit2, uint adc);
         void read_sensors();
         uint16_t get_sensor_value(uint8_t index);
+        void print_values();
         float calculate_error();
         void calibrate();
     private:

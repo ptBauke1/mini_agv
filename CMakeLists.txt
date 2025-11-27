@@ -39,6 +39,7 @@ add_executable(projeto_agvs projeto_agvs.cpp
         src/sensors.cpp
         src/motors.cpp
         src/gyro.cpp
+        src/agv_commands.cpp
         )
 
 pico_set_program_name(projeto_agvs "projeto_agvs")

@@ -20,6 +20,7 @@ SensorArray::SensorArray(uint bit0, uint bit1, uint bit2, uint adc)
 void SensorArray::read_sensors() {
     for (uint8_t i = 0; i < NUM_SENSORS; i++) {
         _set_mux_channel(i);
+        sleep_us(10); // Allow mux output to settle before ADC reading
         _sensor_array[i] = _read_adc();
     }
 }
@@ -35,10 +36,12 @@ void SensorArray::_set_mux_channel(uint8_t channel) {
     gpio_put(_bit_0_pin, (channel & 0x01));
     gpio_put(_bit_1_pin, (channel >> 1) & 0x01);
     gpio_put(_bit_2_pin, (channel >> 2) & 0x01);
+    sleep_us(10);
 }
 
 uint16_t SensorArray::_read_adc() {
     adc_select_input(0); // Ensure the correct ADC channel is selected
+    sleep_us(10); // Give ADC time to switch and settle
     return adc_read();
 }
 
@@ -50,6 +53,9 @@ float SensorArray::calculate_error() {
         // normalizes the readings between 0 and 1000
         uint16_t sensor_value = (get_sensor_value(i) - _min_sensor_values[i]) * 1000 /
                                 (_max_sensor_values[i] - _min_sensor_values[i]);
+        if (sensor_value > 1000) sensor_value = 1000;
+        if (sensor_value < 0) sensor_value = 0;
+        
         weighted_sum += sensor_value * (i * 1000); // Weight by position
         total_value += sensor_value;
     }
@@ -58,7 +64,7 @@ float SensorArray::calculate_error() {
         return 0.0f; // Avoid division by zero
     }
 
-    return static_cast<float>(weighted_sum / total_value) - SENSOR_OFFSET; // Center around zero
+    return static_cast<float>((weighted_sum / total_value) - SENSOR_OFFSET); // Center around zero
 }
 
 void SensorArray::calibrate() {
@@ -83,48 +89,72 @@ void SensorArray::calibrate() {
     }
 }
 
-Ultrasonic::Ultrasonic(uint trigger_pin, uint echo_pin)
-    : _trigger_pin(trigger_pin), _echo_pin(echo_pin) {
-    gpio_init(_trigger_pin);
-    gpio_set_dir(_trigger_pin, GPIO_OUT);
-    gpio_init(_echo_pin);
-    gpio_set_dir(_echo_pin, GPIO_IN);
-
-    gpio_put(_trigger_pin, 0);
-    sleep_ms(10);
+void SensorArray::print_values() {
+    for (uint8_t i = 0; i < NUM_SENSORS; i++) {
+        printf("%d\t", get_sensor_value(i));
+    }
+    printf("\n");
 }
 
-void Ultrasonic::_pulse_trigger() {
-    gpio_put(_trigger_pin, 1);
-    sleep_us(10);
+Ultrasonic::Ultrasonic(uint trigger_pin, uint echo_pin)
+    : _trigger_pin(trigger_pin), _echo_pin(echo_pin) {
+    // Initialize trigger pin - force low multiple times
+    gpio_init(_trigger_pin);
+    gpio_set_dir(_trigger_pin, GPIO_OUT);
     gpio_put(_trigger_pin, 0);
+    sleep_ms(10);
+    gpio_put(_trigger_pin, 0); // Force low again
+    
+    // Initialize echo pin
+    gpio_init(_echo_pin);
+    gpio_set_dir(_echo_pin, GPIO_IN);
+    gpio_set_pulls(_echo_pin, false, false); // Disable internal pulls for level shifter
+
+    sleep_ms(100); // Longer initial delay for sensor startup
+    gpio_put(_trigger_pin, 0); // Ensure trigger is still low
+}
+void Ultrasonic::_pulse_trigger() {
+    gpio_put(_trigger_pin, 0);
+    sleep_us(5); // Longer low time for level shifter
+    gpio_put(_trigger_pin, 1);
+    sleep_us(15); // Slightly longer pulse for reliability through level shifter
+    gpio_put(_trigger_pin, 0);
+    sleep_us(2); // Small settling time
 }
 
 uint32_t Ultrasonic::get_distance_mm() {
-    _pulse_trigger();
-    
-    // Wait for echo to go high with timeout (38ms max for ~4m range)
+    // Ensure trigger starts low, then send pulse
+    gpio_put(_trigger_pin, 0);
+    sleep_us(2);
+    gpio_put(_trigger_pin, 1);
+    sleep_us(10);
+    gpio_put(_trigger_pin, 0);
+
+    // Wait for echo to go high with timeout
     uint32_t timeout_start = time_us_32();
-    while (gpio_get(_echo_pin) == 0) {
-        if (time_us_32() - timeout_start > 38000) {
-            return 0; // Timeout - no echo detected
+    while(gpio_get(_echo_pin) == 0) {
+        if (time_us_32() - timeout_start > 50000) {
+            return 0; // Timeout waiting for echo start
         }
     }
-    int32_t start_time = time_us_32();
-
-    // Wait for echo to go low with timeout
-    timeout_start = time_us_32();
-    while (gpio_get(_echo_pin) == 1) {
-        if (time_us_32() - timeout_start > 38000) {
-            return 0; // Timeout - echo stuck high
+    
+    // Measure pulse width with timeout
+    uint32_t start_time = time_us_32();
+    while(gpio_get(_echo_pin) == 1) {
+        if (time_us_32() - start_time > 50000) {
+            return 0; // Timeout - pulse too long
         }
     }
-    int32_t end_time = time_us_32();
-
-    int32_t pulse_duration = end_time - start_time; // in microseconds
+    uint32_t pulse_width = time_us_32() - start_time;
+    
+    // Sanity check pulse duration (150us - 25ms is valid range)
+    if (pulse_width < 150 || pulse_width > 25000) {
+        return 0; // Invalid reading
+    }
+    
     // Calculate distance in mm (speed of sound is ~343 m/s = 0.343 mm/us)
-    // Distance = (time * speed) / 2 = (pulse_duration_us * 0.343 mm/us) / 2
-    uint32_t distance_mm = (pulse_duration * 343) / 2000;
+    // Distance = (time * speed) / 2 = (pulse_width_us * 0.343 mm/us) / 2
+    uint32_t distance_mm = (pulse_width * 343) / 2000;
 
     return distance_mm;
 }
