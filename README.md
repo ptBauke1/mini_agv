@@ -116,17 +116,23 @@ Raspberry Pi Pico (Firmware C++)
 
 #### Esquema Principal - Motores, Bluetooth e Ultrassônico
 
-![Esquema Principal](imagens/esquema_principal.png)
+<p align="center">
+  <img src="imagens/esquema_principal.png" alt="Esquema Principal" />
+</p>
 
 #### Esquema dos Sensores de Linha (Multiplexador)
 
-![Esquema Sensores](imagens/esquema_sensores.png)
+<p align="center">
+  <img src="imagens/esquema_sensores.png" alt="Esquema Sensores" />
+</p>
 
 ### Foto da Montagem Final
 
-![Montagem Final](imagens/montagem_final.JPG)
+<p align="center">
+  <img src="imagens/montagem_final.JPG" alt="Montagem Final" />
+</p>
 
-*Robô montado com todos os componentes integrados*
+<p align="center"><em>Robô montado com todos os componentes integrados</em></p>
 
 ### Instruções de Montagem
 
